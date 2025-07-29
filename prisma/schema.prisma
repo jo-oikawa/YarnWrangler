@@ -1,0 +1,149 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// MVP Phase 1: Pattern Management Only
+// This minimal schema supports the core MVP functionality
+// Additional models will be added as features are developed
+
+model Pattern {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  source      String?   // Where pattern was obtained
+  notes       String?   // Personal notes
+  tags        String[]  // Searchable tags
+  difficulty  String?   // beginner, intermediate, advanced
+  
+  // File information
+  fileName    String    // Original filename
+  filePath    String    // Storage path
+  fileType    String    // PDF, TXT, etc.
+  fileSize    Int       // Size in bytes
+  
+  // Metadata
+  uploadDate  DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Future relationships (commented out for MVP)
+  // userId      String?   // Will be added when auth is implemented
+  // user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  // projects    ProjectPattern[]  // Will be added when projects are implemented
+  
+  @@map("patterns")
+  @@index([uploadDate])
+  @@index([tags])
+}
+
+// Future models - uncomment and implement as features are added:
+
+/*
+model User {
+  id        String   @id @default(cuid())
+  email     String?  @unique  // Optional for now, required later
+  username  String?  @unique  // Optional for now
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationships
+  patterns  Pattern[]
+  projects  Project[]
+  yarns     Yarn[]
+  
+  @@map("users")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  status      String   @default("planned") // planned, in_progress, completed, on_hold
+  startDate   DateTime?
+  endDate     DateTime?
+  notes       String?
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  userId      String?  // Optional for now
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  patterns    ProjectPattern[]  // Many-to-many with patterns
+  yarns       ProjectYarn[]     // Many-to-many with yarns
+  
+  @@map("projects")
+  @@index([userId])
+  @@index([status])
+}
+
+model Yarn {
+  id          String   @id @default(cuid())
+  brand       String?
+  name        String   // Yarn name/color
+  color       String?
+  weight      String?  // Lace, DK, Worsted, etc.
+  fiberContent String? // 100% wool, cotton blend, etc.
+  yardage     Int?     // Total yards/meters
+  quantity    Int      @default(1) // Number of skeins/balls
+  status      String   @default("in_stash") // in_stash, wishlist, used, shopping_list
+  
+  // Purchase information
+  purchaseDate DateTime?
+  purchasePrice Float?
+  store       String?
+  
+  // Notes
+  notes       String?
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  userId      String?  // Optional for now
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  projects    ProjectYarn[] // Many-to-many with projects
+  
+  @@map("yarns")
+  @@index([userId])
+  @@index([status])
+}
+
+model ProjectPattern {
+  id        String  @id @default(cuid())
+  projectId String
+  patternId String
+  notes     String? // Specific notes about using this pattern in this project
+  
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  pattern   Pattern @relation(fields: [patternId], references: [id], onDelete: Cascade)
+  
+  @@unique([projectId, patternId])
+  @@map("project_patterns")
+}
+
+model ProjectYarn {
+  id           String  @id @default(cuid())
+  projectId    String
+  yarnId       String
+  quantityUsed Int?    // How much yarn was/will be used
+  notes        String? // Specific notes about using this yarn in this project
+  
+  project      Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  yarn         Yarn    @relation(fields: [yarnId], references: [id], onDelete: Cascade)
+  
+  @@unique([projectId, yarnId])
+  @@map("project_yarns")
+}
+*/
